@@ -13,16 +13,28 @@ public class MyBot : IChessBot
     public Move Think(Board board, Timer timer)
 	{
 		moveValueDictionary.Clear();
+		bool i_am_white = board.IsWhiteToMove;
+		ulong attacked_squares = 0;
+		ulong defended_squares = 0;
+		
+		
+		//GetNumberOfSetBits(WhitePiecesBitboard)
+		//GetPieceBitboard(PieceType type, bool white)
+		
+		//MovePieceType
+		//CapturePieceType
+		//PromotionPieceType
+		
         Move[] allMoves = board.GetLegalMoves();
         foreach (Move move in allMoves)
 		{
-			if (MoveIsCheckmate(board, move))
-			{
-                return move;
-            }
-			MakeMove(move);
-			moveValueDictionary.Add(move, board.GetLegalMoves().Length);
-			UndoMove(move);
+			board.MakeMove(move);
+			
+			if (board.IsInCheckmate()) return move;
+			moveValueDictionary.Add(
+				move, board.GetLegalMoves().Length;
+				
+			board.UndoMove(move);
         }
 		
 		Move final_move = allMoves[0];
