@@ -68,18 +68,19 @@ public class MyBot : IChessBot
         Move[] allMoves = board.GetLegalMoves();
         foreach (Move move in allMoves)
 		{
-			board.MakeMove(move);		
-			if (board.IsInCheckmate()) return move;	
-			board.UndoMove(move);
-			
-			if( !board.SquareIsAttackedByOpponent(move.TargetSquare) )
+			if( board.SquareIsAttackedByOpponent(move.TargetSquare) )
 			{
-				moveValueDictionary.Add(move, Evaluate_position(board));
+				continue;
 			}
+			board.MakeMove(move);		
+				if (board.IsInCheckmate()) return move;
+				moveValueDictionary.Add(move, Evaluate_position(board));			
+			board.UndoMove(move);
         }
 		
 		Random rng = new();
 		Move final_move = allMoves[rng.Next(allMoves.Length)];
+		
 		int best_score = i_am_white ? -1000 : 1000;
 		foreach (var pair in moveValueDictionary)
 		{
