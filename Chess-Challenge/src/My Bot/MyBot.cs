@@ -55,11 +55,9 @@ public class MyBot : IChessBot
 		result += freedom_weight * Evaluate_freedom(board);
 		result += army_weight * Evaluate_army(board);
 		//result += army_weight * Evaluate_material(board);
+		
 		return result; 
 	}
-
-
-	
 	
 	
     public Move Think(Board board, Timer timer)
@@ -67,30 +65,21 @@ public class MyBot : IChessBot
 		moveValueDictionary.Clear();
 		bool i_am_white = board.IsWhiteToMove;
 		
-		//ulong attacked_squares = 0;
-		//ulong defended_squares = 0;
-		//int current_material = 0;
-		//int current_enemy_material = 0;
-		//int current_difference = 0;
-		//int expected_difference = 0;
-
-		//GetNumberOfSetBits(WhitePiecesBitboard)
-		//GetPieceBitboard(PieceType type, bool white)
-		
-		//MovePieceType
-		//CapturePieceType
-		//PromotionPieceType
-		
         Move[] allMoves = board.GetLegalMoves();
         foreach (Move move in allMoves)
 		{
 			board.MakeMove(move);		
-			if (board.IsInCheckmate()) return move;			
-			moveValueDictionary.Add(move, Evaluate_position(board));
+			if (board.IsInCheckmate()) return move;	
 			board.UndoMove(move);
+			
+			if( !board.SquareIsAttackedByOpponent(move.TargetSquare) )
+			{
+				moveValueDictionary.Add(move, Evaluate_position(board));
+			}
         }
 		
-		Move final_move = allMoves[0];
+		Random rng = new();
+		Move final_move = allMoves[rng.Next(allMoves.Length)];
 		int best_score = i_am_white ? -1000 : 1000;
 		foreach (var pair in moveValueDictionary)
 		{
