@@ -10,6 +10,7 @@ public class MyBot : IChessBot
 	private int army_weight = 1;
 	private int freedom_weight = 1;
 	private int material_weight = 1;
+	private int safe_material_weight = 1;
 	
 	private Dictionary<Move, int> moveValueDictionary = new Dictionary<Move, int>();
 	
@@ -18,7 +19,7 @@ public class MyBot : IChessBot
 	//private int Recent_Evaluation = 0;
 	
 	
-	private int Evaluate_army(Board board)
+	private int Evaluate_army_size(Board board)
 	{
 		int army_size_dom = 0;
 		army_size_dom += BitboardHelper.GetNumberOfSetBits(board.WhitePiecesBitboard);
@@ -26,6 +27,13 @@ public class MyBot : IChessBot
 		return army_size_dom;
 	}
 	
+	private int Evaluate_safe_material(Board board)
+	{
+		int army_size_dom = 0;
+		army_size_dom += BitboardHelper.GetNumberOfSetBits(board.WhitePiecesBitboard);
+		army_size_dom -= BitboardHelper.GetNumberOfSetBits(board.BlackPiecesBitboard);
+		return army_size_dom;
+	}
 	
 	private int Evaluate_material(Board board)
 	{
@@ -53,7 +61,8 @@ public class MyBot : IChessBot
 	{
 		int result = 0;
 		result += freedom_weight * Evaluate_freedom(board);
-		result += army_weight * Evaluate_army(board);
+		result += army_weight * Evaluate_army_size(board);
+		result += 
 		//result += army_weight * Evaluate_material(board);
 		
 		return result; 
