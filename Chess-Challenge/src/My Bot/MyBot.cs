@@ -2,22 +2,19 @@
 using System;
 using System.Collections.Generic;
 
-// first time ever i am programming in c#, and first time - bots
-
 public class MyBot : IChessBot
 {
 	private bool i_am_white;
-	private int army_weight = 1;
+	private int army_weight = 10;
 	private int freedom_weight = 1;
-	private int material_weight = 1;
-	private int safe_material_weight = 1;
+	//private int material_weight = 1;
+	//private int safe_material_weight = 1;
 	
 	private Dictionary<Move, int> moveValueDictionary = new Dictionary<Move, int>();
 	
 	//private int Spread = 5;
 	//private int Depth = 5;
 	//private int Recent_Evaluation = 0;
-	
 	
 	private int Evaluate_army_size(Board board)
 	{
@@ -27,24 +24,24 @@ public class MyBot : IChessBot
 		return army_size_dom;
 	}
 	
-	private int Evaluate_safe_material(Board board)
-	{
-		int army_size_dom = 0;
-		army_size_dom += BitboardHelper.GetNumberOfSetBits(board.WhitePiecesBitboard);
-		army_size_dom -= BitboardHelper.GetNumberOfSetBits(board.BlackPiecesBitboard);
-		return army_size_dom;
-	}
+	// private int Evaluate_safe_material(Board board) // amount of not attacked pieces
+	// {
+		// int army_size_dom = 0;
+		// army_size_dom += BitboardHelper.GetNumberOfSetBits(board.WhitePiecesBitboard & not );
+		// army_size_dom -= BitboardHelper.GetNumberOfSetBits(board.BlackPiecesBitboard);
+		// return army_size_dom;
+	// }
 	
-	private int Evaluate_material(Board board)
-	{
-		int army_size_dom = 0;
-		//BitboardHelper.GetNumberOfSetBits(board.WhitePiecesBitboard) - 
-		//BitboardHelper.GetNumberOfSetBits(board.BlackPiecesBitboard);
-		return army_size_dom;
-	}
+	// private int Evaluate_material(Board board)
+	// {
+		// int army_size_dom = 0;
+		// BitboardHelper.GetNumberOfSetBits(board.WhitePiecesBitboard) - 
+		// BitboardHelper.GetNumberOfSetBits(board.BlackPiecesBitboard);
+		// return army_size_dom;
+	// }
 	
 	
-	private int Evaluate_freedom(Board board)
+	private int Evaluate_freedom(Board board) //absolute score
 	{
 		int white_move_mult = (board.IsWhiteToMove ? 1 : -1);
 		int freedom_current = board.GetLegalMoves().Length;
@@ -62,8 +59,6 @@ public class MyBot : IChessBot
 		int result = 0;
 		result += freedom_weight * Evaluate_freedom(board);
 		result += army_weight * Evaluate_army_size(board);
-		result += 
-		//result += army_weight * Evaluate_material(board);
 		
 		return result; 
 	}
