@@ -63,6 +63,10 @@ public class MyBot : IChessBot
 		return result; 
 	}
 	
+	private minimax(Board board, int side)
+	{
+		
+	}
 	
     public Move Think(Board board, Timer timer)
 	{
@@ -72,10 +76,10 @@ public class MyBot : IChessBot
         Move[] allMoves = board.GetLegalMoves();
         foreach (Move move in allMoves)
 		{
-			if( board.SquareIsAttackedByOpponent(move.TargetSquare) )
+			/* if( board.SquareIsAttackedByOpponent(move.TargetSquare) )
 			{
 				continue;
-			}
+			} */
 			board.MakeMove(move);		
 				if (board.IsInCheckmate()) return move;
 				moveValueDictionary.Add(move, Evaluate_position(board));			
