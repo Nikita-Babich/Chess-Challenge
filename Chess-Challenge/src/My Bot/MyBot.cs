@@ -4,13 +4,21 @@ using System.Collections.Generic;
 
 public class MyBot : IChessBot
 {
+	Random random = new Random();
+	
+	private class MoveResult
+	{
+		public Move BestMove {get;set;}
+		public int BestValue {get;set;}
+	}
+	
 	private bool i_am_white;
 	private int army_weight = 10;
 	private int freedom_weight = 1;
 	//private int material_weight = 1;
 	//private int safe_material_weight = 1;
 	
-	private Dictionary<Move, int> moveValueDictionary = new Dictionary<Move, int>();
+	//private Dictionary<Move, int> moveValueDictionary = new Dictionary<Move, int>();
 	
 	//private int Spread = 5;
 	//private int Depth = 5;
@@ -59,56 +67,56 @@ public class MyBot : IChessBot
 		int result = 0;
 		result += freedom_weight * Evaluate_freedom(board);
 		result += army_weight * Evaluate_army_size(board);
-		
+		result += random.Next(0, 3); // Fluctuation for vriability in gameplay
 		return result; 
 	}
 	
-	private minimax(Board board, int side)
+	private Move Minimax(Board board, int depth, bool maximizingPlayer)
 	{
+		if (depth == 0 | board.IsInCheckmate())
+		{
+			int score = Evaluate(board);
+			return new MoveResult {BestMove = null, BestValue = score};
+		}
 		
+		if (maximizingPlayer)
+		{
+			MoveResult bestResult = new MoveResult { BestValue = int.MinValue};
+			foreach (Move child in board.GetLegalMoves())
+			{
+				board.MakeMove(child);
+				MoveResult result = Minimax(board, depth - 1, false);
+				if (result.BestValue > bestResult.BestValue)
+				{
+					bestResult.BestValue = result.BestValue;
+					bestResult.BestMove = child;
+				}
+				board.UndoMove(child);
+			}
+		}
+		else
+		{
+			MoveResult bestResult = new MoveResult { BestValue = int.MaxValue};
+			foreach (Move child in board.GetLegalMoves())
+			{
+				board.MakeMove(child);
+				MoveResult result = Minimax(board, depth - 1, true);
+				if (result.BestValue < bestResult.BestValue)
+				{
+					bestResult.BestValue = result.BestValue;
+					bestResult.BestMove = child;
+				}
+				board.UndoMove(child);
+			}
+		}
+		return bestResult.BestMove;
 	}
 	
     public Move Think(Board board, Timer timer)
 	{
-		moveValueDictionary.Clear();
 		bool i_am_white = board.IsWhiteToMove;
-		
-        Move[] allMoves = board.GetLegalMoves();
-        foreach (Move move in allMoves)
-		{
-			/* if( board.SquareIsAttackedByOpponent(move.TargetSquare) )
-			{
-				continue;
-			} */
-			board.MakeMove(move);		
-				if (board.IsInCheckmate()) return move;
-				moveValueDictionary.Add(move, Evaluate_position(board));			
-			board.UndoMove(move);
-        }
-		
-		Random rng = new();
-		Move final_move = allMoves[rng.Next(allMoves.Length)];
-		
-		int best_score = i_am_white ? -1000 : 1000;
-		foreach (var pair in moveValueDictionary)
-		{
-			if(i_am_white)
-			{	
-				if(pair.Value > best_score)
-				{
-					final_move = pair.Key;
-					best_score = pair.Value;
-				}
-			}
-			else
-			{
-				if(pair.Value < best_score)
-				{
-					final_move = pair.Key;
-					best_score = pair.Value;
-				}
-			}
-		}
+		Move final_move = Minimax(board, 
+        
 		
         return final_move;
     }
