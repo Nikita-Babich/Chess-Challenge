@@ -42,11 +42,8 @@ public class MyBot : IChessBot
 	
 	private (int, Move) Minimax(Board board, int depth, bool maximizingPlayer)
 	{
-		private Move BestMove = board.GetLegalMoves()[0];
-		private int BestValue;
-		
-		private Move LocalMove;
-		private int LocalValue;
+		Move BestMove = board.GetLegalMoves()[0];
+		int BestValue;
 		
 		if (depth == 0 | board.IsInCheckmate())
 		{
@@ -92,8 +89,7 @@ public class MyBot : IChessBot
 		//Move constMove = board.GetLegalMoves()[0]; 
 		
 		bool i_am_white = board.IsWhiteToMove;
-		int score_potential;
-		var (score_potential, final_move) = Minimax(board, 3, i_am_white); //.Item1
+		var (_, final_move) = Minimax(board, 3, i_am_white); //.Item1
         
 		
         return final_move;
