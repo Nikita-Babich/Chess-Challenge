@@ -4,10 +4,8 @@ using System.Collections.Generic;
 
 public class MyBot : IChessBot
 {
+	//test Tuple with public (Move, int) function
 	Random random = new Random();
-	
-	public Move BestMove {get;set;}
-	public int BestValue {get;set;}
 	
 	//private bool i_am_white; //zero black, one white 
 	private int army_weight = 10;
@@ -42,53 +40,60 @@ public class MyBot : IChessBot
 		return result; 
 	}
 	
-	private Move Minimax(Board board, int depth, bool maximizingPlayer)
+	private (int, Move) Minimax(Board board, int depth, bool maximizingPlayer)
 	{
-		private Move BestMove;
-		private int BestScore;
+		private Move BestMove = board.GetLegalMoves()[0];
+		private int BestValue;
+		
+		private Move LocalMove;
+		private int LocalValue;
+		
 		if (depth == 0 | board.IsInCheckmate())
 		{
 			int score = Evaluate_position(board);
-			return new MoveResult {BestMove = null, BestValue = score};
+			return (score, BestMove); //new MoveResult {BestMove = null, BestValue = score};
 		}
 		
 		if (maximizingPlayer)
 		{
-			MoveResult bestResult = new MoveResult { BestValue = int.MinValue};
+			BestValue = int.MinValue;
 			foreach (Move child in board.GetLegalMoves())
 			{
 				board.MakeMove(child);
-				MoveResult result = Minimax(board, depth - 1, false);
-				if (result.BestValue > bestResult.BestValue)
+				var (LocalValue, LocalMove) = Minimax(board, depth - 1, false);
+				if (LocalValue > BestValue)
 				{
-					bestResult.BestValue = result.BestValue;
-					bestResult.BestMove = child;
+					BestValue = LocalValue;
+					BestMove = child;
 				}
 				board.UndoMove(child);
 			}
 		}
 		else
 		{
-			MoveResult bestResult = new MoveResult { BestValue = int.MaxValue};
+			BestValue = int.MaxValue;
 			foreach (Move child in board.GetLegalMoves())
 			{
 				board.MakeMove(child);
-				MoveResult result = Minimax(board, depth - 1, true);
-				if (result.BestValue < bestResult.BestValue)
+				var (LocalValue, LocalMove) = Minimax(board, depth - 1, false);
+				if (LocalValue < BestValue)
 				{
-					bestResult.BestValue = result.BestValue;
-					bestResult.BestMove = child;
+					BestValue = LocalValue;
+					BestMove = child;
 				}
 				board.UndoMove(child);
 			}
 		}
-		return bestResult.BestMove;
+		return (BestValue, BestMove);
 	}
 	
     public Move Think(Board board, Timer timer)
 	{
+		//Move constMove = board.GetLegalMoves()[0]; 
+		
 		bool i_am_white = board.IsWhiteToMove;
-		Move final_move = Minimax(board, 3, i_am_white);
+		int score_potential;
+		var (score_potential, final_move) = Minimax(board, 3, i_am_white); //.Item1
         
 		
         return final_move;
