@@ -8,7 +8,7 @@ public class MyBot : IChessBot
 	Random random = new Random();
 	
 	//private bool i_am_white; //zero black, one white 
-	private int army_weight = 10;
+	private int army_weight = 100;
 	private int freedom_weight = 1;
 	
 	private int Evaluate_army_size(Board board)
@@ -86,7 +86,6 @@ public class MyBot : IChessBot
 	
     public Move Think(Board board, Timer timer)
 	{
-		//Move constMove = board.GetLegalMoves()[0]; 
 		
 		bool i_am_white = board.IsWhiteToMove;
 		var (_, final_move) = Minimax(board, 3, i_am_white); //.Item1
