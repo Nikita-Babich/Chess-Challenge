@@ -6,23 +6,12 @@ public class MyBot : IChessBot
 {
 	Random random = new Random();
 	
-	private class MoveResult
-	{
-		public Move BestMove {get;set;}
-		public int BestValue {get;set;}
-	}
+	public Move BestMove {get;set;}
+	public int BestValue {get;set;}
 	
-	private bool i_am_white;
+	//private bool i_am_white; //zero black, one white 
 	private int army_weight = 10;
 	private int freedom_weight = 1;
-	//private int material_weight = 1;
-	//private int safe_material_weight = 1;
-	
-	//private Dictionary<Move, int> moveValueDictionary = new Dictionary<Move, int>();
-	
-	//private int Spread = 5;
-	//private int Depth = 5;
-	//private int Recent_Evaluation = 0;
 	
 	private int Evaluate_army_size(Board board)
 	{
@@ -31,23 +20,6 @@ public class MyBot : IChessBot
 		army_size_dom -= BitboardHelper.GetNumberOfSetBits(board.BlackPiecesBitboard);
 		return army_size_dom;
 	}
-	
-	// private int Evaluate_safe_material(Board board) // amount of not attacked pieces
-	// {
-		// int army_size_dom = 0;
-		// army_size_dom += BitboardHelper.GetNumberOfSetBits(board.WhitePiecesBitboard & not );
-		// army_size_dom -= BitboardHelper.GetNumberOfSetBits(board.BlackPiecesBitboard);
-		// return army_size_dom;
-	// }
-	
-	// private int Evaluate_material(Board board)
-	// {
-		// int army_size_dom = 0;
-		// BitboardHelper.GetNumberOfSetBits(board.WhitePiecesBitboard) - 
-		// BitboardHelper.GetNumberOfSetBits(board.BlackPiecesBitboard);
-		// return army_size_dom;
-	// }
-	
 	
 	private int Evaluate_freedom(Board board) //absolute score
 	{
@@ -61,7 +33,6 @@ public class MyBot : IChessBot
 		return white_move_mult * (freedom_current - freedom_opponent);
 	}
 	
-	
 	private int Evaluate_position(Board board) //higher better for white
 	{
 		int result = 0;
@@ -73,9 +44,11 @@ public class MyBot : IChessBot
 	
 	private Move Minimax(Board board, int depth, bool maximizingPlayer)
 	{
+		private Move BestMove;
+		private int BestScore;
 		if (depth == 0 | board.IsInCheckmate())
 		{
-			int score = Evaluate(board);
+			int score = Evaluate_position(board);
 			return new MoveResult {BestMove = null, BestValue = score};
 		}
 		
@@ -115,7 +88,7 @@ public class MyBot : IChessBot
     public Move Think(Board board, Timer timer)
 	{
 		bool i_am_white = board.IsWhiteToMove;
-		Move final_move = Minimax(board, 
+		Move final_move = Minimax(board, 3, i_am_white);
         
 		
         return final_move;
