@@ -30,10 +30,20 @@ public class MyBot : IChessBot
 		
 		return white_move_mult * (freedom_current - freedom_opponent);
 	}
+	private int Evaluate_avoid(Board board)
+	{
+		int result = 0;
+		int white_move_mult = (board.IsWhiteToMove ? 1 : -1);
+		if (board.IsInCheckmate() | board.IsDraw() | board.IsInStalemate() | board.IsFiftyMoveDraw() ){
+			result = int.MinValue;
+		}
+		return white_move_mult*result;
+	}
 	
 	private int Evaluate_position(Board board) //higher better for white
 	{
 		int result = 0;
+		result += avoid_weight * Evaluate_avoid(board);
 		result += freedom_weight * Evaluate_freedom(board);
 		result += army_weight * Evaluate_army_size(board);
 		result += random.Next(0, 3); // Fluctuation for vriability in gameplay
@@ -42,10 +52,10 @@ public class MyBot : IChessBot
 	
 	private (int, Move) Minimax(Board board, int depth, bool maximizingPlayer)
 	{
-		Move BestMove = board.GetLegalMoves()[0];
+		Move BestMove; // = board.GetLegalMoves()[0];
 		int BestValue;
 		
-		if (depth == 0 | board.IsInCheckmate())
+		if (depth == 0 ) //| board.IsInCheckmate()
 		{
 			int score = Evaluate_position(board);
 			return (score, BestMove); //new MoveResult {BestMove = null, BestValue = score};
