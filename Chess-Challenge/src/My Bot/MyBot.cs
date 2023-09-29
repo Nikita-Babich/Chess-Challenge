@@ -8,8 +8,14 @@ public class MyBot : IChessBot
 	Random random = new Random();
 	
 	//private bool i_am_white; //zero black, one white 
-	private int army_weight = 100;
-	private int freedom_weight = 1;
+	private int GlobalDepth = 3;
+	//private int GlobalLimit = 100;
+	private int army_weight = 10;
+	private int freedom_weight = 30;
+	private int power_weight = 100;
+	private int fluctuation = 2;
+	
+	private readonly int[] piece_values = { 0, 1, 2, 4, 8, 16, 0 };
 	
 	private int Evaluate_army_size(Board board)
 	{
@@ -34,25 +40,42 @@ public class MyBot : IChessBot
 	{
 		int result = 0;
 		int white_move_mult = (board.IsWhiteToMove ? 1 : -1);
-		if (board.IsInCheckmate() | board.IsDraw() | board.IsInStalemate() | board.IsFiftyMoveDraw() ){
-			result = int.MinValue;
+		if (board.IsInCheckmate() | board.IsDraw()  ){ // | board.IsInStalemate() | board.IsFiftyMoveDraw()
+			result = int.MinValue+100;
 		}
 		return white_move_mult*result;
+	}
+	private int Evaluate_power(Board board)
+	{
+		int result = 0;
+		int val = 0;
+		int mult = 0;
+		PieceList[] piece_info = board.GetAllPieceLists();
+		foreach(PieceList list in piece_info){
+			foreach(Piece alive in list){
+				if(alive.IsWhite){ mult = 1;} else { mult = -1;}
+				val += mult * piece_values[(int)alive.PieceType];
+			}
+		}
+		
+		return result;
 	}
 	
 	private int Evaluate_position(Board board) //higher better for white
 	{
 		int result = 0;
-		result += avoid_weight * Evaluate_avoid(board);
+		result += Evaluate_avoid(board);
+		if(Math.Abs(result) > 9999999){ return result;}
 		result += freedom_weight * Evaluate_freedom(board);
 		result += army_weight * Evaluate_army_size(board);
-		result += random.Next(0, 3); // Fluctuation for vriability in gameplay
+		result += power_weight * Evaluate_power(board);
+		result += random.Next(0, fluctuation); // Fluctuation for vriability in gameplay
 		return result; 
 	}
 	
 	private (int, Move) Minimax(Board board, int depth, bool maximizingPlayer)
 	{
-		Move BestMove; // = board.GetLegalMoves()[0];
+		Move BestMove = new Move(); // = board.GetLegalMoves()[0];
 		int BestValue;
 		
 		if (depth == 0 ) //| board.IsInCheckmate()
@@ -67,13 +90,16 @@ public class MyBot : IChessBot
 			foreach (Move child in board.GetLegalMoves())
 			{
 				board.MakeMove(child);
-				var (LocalValue, LocalMove) = Minimax(board, depth - 1, false);
+				var (LocalValue, _) = Minimax(board, depth - 1, !maximizingPlayer);
 				if (LocalValue > BestValue)
 				{
 					BestValue = LocalValue;
 					BestMove = child;
 				}
 				board.UndoMove(child);
+				if (BestValue > 999999){
+					return (BestValue, BestMove);
+				}
 			}
 		}
 		else
@@ -82,7 +108,7 @@ public class MyBot : IChessBot
 			foreach (Move child in board.GetLegalMoves())
 			{
 				board.MakeMove(child);
-				var (LocalValue, LocalMove) = Minimax(board, depth - 1, false);
+				var (LocalValue, LocalMove) = Minimax(board, depth - 1, !maximizingPlayer);
 				if (LocalValue < BestValue)
 				{
 					BestValue = LocalValue;
@@ -94,11 +120,36 @@ public class MyBot : IChessBot
 		return (BestValue, BestMove);
 	}
 	
+	bool MoveIsCheckmate(Board board, Move move)
+    {
+        board.MakeMove(move);
+        bool isMate = board.IsInCheckmate();
+        board.UndoMove(move);
+        return isMate;
+    }
+		
     public Move Think(Board board, Timer timer)
 	{
+		Move[] allMoves = board.GetLegalMoves();
+		foreach (Move move in allMoves)
+        {
+            if (MoveIsCheckmate(board, move))
+            {
+                Move moveToPlay = move;
+                return move;
+            }
+		}
 		
+		if(BitboardHelper.GetNumberOfSetBits(board.AllPiecesBitboard) < 16)
+		{
+			GlobalDepth = 4;
+		}
+		if(BitboardHelper.GetNumberOfSetBits(board.AllPiecesBitboard) < 6)
+		{
+			GlobalDepth = 5;
+		}
 		bool i_am_white = board.IsWhiteToMove;
-		var (_, final_move) = Minimax(board, 3, i_am_white); //.Item1
+		var (_, final_move) = Minimax(board, GlobalDepth, i_am_white); //.Item1
         
 		
         return final_move;
