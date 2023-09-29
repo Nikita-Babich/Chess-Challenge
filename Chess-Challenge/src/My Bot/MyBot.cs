@@ -54,7 +54,7 @@ public class MyBot : IChessBot
 		foreach(PieceList list in piece_info){
 			foreach(Piece alive in list){
 				if(alive.IsWhite){ mult = 1;} else { mult = -1;}
-				val += mult * piece_values[(int)alive.PieceType];
+				val += mult * piece_values[(int)alive.PieceType] + mult * alive.Square.Rank;
 			}
 		}
 		
