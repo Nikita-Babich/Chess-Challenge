@@ -11,7 +11,7 @@ public class MyBot : IChessBot
 	private int GlobalDepth = 3;
 	//private int GlobalLimit = 100;
 	private int army_weight = 10;
-	private int freedom_weight = 30;
+	private int freedom_weight = 3;
 	private int power_weight = 100;
 	private int fluctuation = 2;
 	
