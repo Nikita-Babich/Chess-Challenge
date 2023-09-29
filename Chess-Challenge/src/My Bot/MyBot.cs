@@ -151,7 +151,9 @@ public class MyBot : IChessBot
 		bool i_am_white = board.IsWhiteToMove;
 		var (_, final_move) = Minimax(board, GlobalDepth, i_am_white); //.Item1
         
-		
+		if(final_move == null){
+			final_move = allMoves[0];
+		}
         return final_move;
     }
 }
